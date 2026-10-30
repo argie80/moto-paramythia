@@ -1639,6 +1639,140 @@
       padding: 0.5rem;
     }
 
+    /* ===== Maps (route & radar) ===== */
+    .map-box {
+      height: 17rem;
+      border-radius: 0.9rem;
+      overflow: hidden;
+      isolation: isolate;
+      background: #0b1220;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      margin: 0.6rem 0;
+    }
+
+    .map-box.hidden {
+      display: none;
+    }
+
+    .map-box .leaflet-control-attribution {
+      font-size: 0.55rem;
+      background: rgba(0, 0, 0, 0.55);
+      color: #cbd5e1;
+    }
+
+    .map-box .leaflet-control-attribution a {
+      color: #e2e8f0;
+    }
+
+    .radar-controls {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .radar-btn {
+      flex-shrink: 0;
+      width: 2.4rem;
+      height: 2.4rem;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .radar-controls input[type="range"] {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .radar-time {
+      font-size: 0.8rem;
+      font-weight: 700;
+      min-width: 4.6rem;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .radar-note {
+      font-size: 0.7rem;
+      opacity: 0.75;
+      margin-top: 0.5rem;
+    }
+
+    .radar-scale {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.65rem;
+      opacity: 0.85;
+      margin-top: 0.45rem;
+    }
+
+    .radar-scale-bar {
+      flex: 1;
+      height: 0.4rem;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #9be7ff, #2f8fff, #1d4ed8, #facc15, #f97316, #dc2626, #c026d3);
+    }
+
+    .route-meta {
+      font-size: 0.72rem;
+      opacity: 0.8;
+      margin-bottom: 0.5rem;
+    }
+
+    /* ===== Ride notification settings ===== */
+    .day-toggles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-bottom: 0.6rem;
+    }
+
+    .day-toggle {
+      font: inherit;
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 0.4rem 0.65rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      background: transparent;
+      color: var(--dropdown-text);
+      cursor: pointer;
+    }
+
+    .day-toggle.on {
+      background: #f97316;
+      border-color: #f97316;
+      color: #ffffff;
+    }
+
+    .ride-notify-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--dropdown-text);
+    }
+
+    .ride-notify-row select {
+      font: inherit;
+      padding: 0.35rem 0.5rem;
+      border-radius: 0.55rem;
+    }
+
+    .menu-hint {
+      font-size: 0.72rem;
+      opacity: 0.75;
+      color: var(--dropdown-text);
+    }
+
     /* Daily ride score inside 7-day list */
     .day-name {
       display: inline-flex;
@@ -1742,6 +1876,26 @@
         <p class="menu-empty-cities" id="emptyCitiesHint">Δεν έχετε αποθηκεύσει πόλεις ακόμα.</p>
       </div>
 
+      <!-- Ride notification settings -->
+      <div class="menu-section">
+        <span class="menu-section-label">Ειδοποίηση Βόλτας</span>
+        <div class="day-toggles" id="rideNotifyDays" aria-label="Ημέρες ειδοποίησης βόλτας"></div>
+        <div class="ride-notify-row">
+          <label>Ώρα: <select id="rideNotifyHour"></select></label>
+        </div>
+        <div class="menu-actions-grid">
+          <button type="button" id="rideNotifyBtn" class="menu-action-btn">
+            <span id="rideNotifyIcon" aria-hidden="true"></span>
+            <span id="rideNotifyText" class="aligned-label">Ενεργοποίηση</span>
+          </button>
+          <button type="button" id="rideNotifyTest" class="menu-action-btn">
+            <span id="rideNotifyTestIcon" aria-hidden="true"></span>
+            <span class="aligned-label">Δοκιμή τώρα</span>
+          </button>
+        </div>
+        <p class="menu-hint">Τις μέρες που διάλεξες, μετά την ώρα που όρισες, θα λάβεις τον δείκτη βόλτας και το καλύτερο παράθυρο. Το βράδυ πριν από μέρα βόλτας λαμβάνεις και πρόγνωση για την επόμενη. Στο iPhone η ειδοποίηση έρχεται όταν ανοίξεις την εφαρμογή ή όσο είναι ανοιχτή (τα web apps δεν τρέχουν στο παρασκήνιο).</p>
+      </div>
+
       <!-- 3. Quick Options & Actions -->
       <div class="menu-section">
         <span class="menu-section-label">Επιλογές & Ενέργειες</span>
@@ -1802,6 +1956,27 @@
       <div id="routeResult">
         <p class="route-empty">Διάλεξε προορισμό για να δεις τον καιρό σε όλη τη διαδρομή.</p>
       </div>
+      <div class="map-box hidden" id="routeMap" aria-label="Χάρτης διαδρομής"></div>
+      <div class="route-points" id="routePoints"></div>
+    </section>
+
+    <!-- Rain Radar (RainViewer) -->
+    <section class="glass-card" id="radarCard" aria-labelledby="radarHeading">
+      <h2 class="card-header" id="radarHeading">
+        <span class="card-header-left">
+          <span aria-hidden="true" id="radarHeaderIcon"></span>
+          <span class="aligned-label">Ραντάρ Βροχής</span>
+        </span>
+        <span id="radarStatus" class="aligned-label" style="font-size: 0.7rem; opacity: 0.8;">Ζωντανά</span>
+      </h2>
+      <div class="map-box" id="radarMap" aria-label="Χάρτης ραντάρ βροχής"></div>
+      <div class="radar-controls">
+        <button type="button" class="radar-btn" id="radarPlay" aria-label="Αναπαραγωγή ραντάρ"></button>
+        <input type="range" id="radarSlider" min="0" max="0" value="0" aria-label="Χρονική στιγμή ραντάρ" />
+        <span class="radar-time" id="radarTime">--:--</span>
+      </div>
+      <div class="radar-scale"><span>Ασθενής</span><span class="radar-scale-bar"></span><span>Ισχυρή</span></div>
+      <p class="radar-note">Κίνηση της βροχής τις τελευταίες ~2 ώρες. Δεδομένα: RainViewer.</p>
     </section>
 
     <!-- Hourly Forecast (Next 24 Hours) -->
@@ -2120,6 +2295,9 @@
       'table': '<path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/>',
       'wrench': '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
       'flag': '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+      'play': '<polygon points="6 3 20 12 6 21 6 3"/>',
+      'pause': '<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
+      'radar': '<path d="M19.07 4.93A10 10 0 0 0 6.99 3.34"/><path d="M4 6h.01"/><path d="M2.29 9.62A10 10 0 1 0 21.31 8.35"/><path d="M16.24 7.76A6 6 0 1 0 8.23 16.67"/><path d="M12 18h.01"/><path d="M17.99 11.66A6 6 0 0 1 15.77 16.67"/><circle cx="12" cy="12" r="2"/><path d="m13.41 10.59 5.66-5.66"/>',
       'sliders-horizontal': '<line x1="21" x2="14" y1="4" y2="4"/><line x1="10" x2="3" y1="4" y2="4"/><line x1="21" x2="12" y1="12" y2="12"/><line x1="8" x2="3" y1="12" y2="12"/><line x1="21" x2="16" y1="20" y2="20"/><line x1="12" x2="3" y1="20" y2="20"/><line x1="14" x2="14" y1="2" y2="6"/><line x1="8" x2="8" y1="10" y2="14"/><line x1="16" x2="16" y1="18" y2="22"/>'
     };
 
@@ -2318,6 +2496,27 @@
         n++;
       }
       return n ? Math.round(sum / n) : null;
+    }
+
+    // Best 3-hour daylight riding window between two hourly indices
+    function findBestWindow(hourly, fromIdx, toIdx) {
+      let best = null;
+      for (let i = fromIdx; i < Math.min(toIdx, hourly.time.length - 2); i++) {
+        if (hv(hourly.is_day, i, 1) === 0 || hv(hourly.is_day, i + 2, 1) === 0) continue;
+        const sc = [0, 1, 2].map((k) => computeRideScore(hourly, i + k));
+        const avg = sc.reduce((acc, x) => acc + x.score, 0) / 3;
+        if (!best || avg > best.avg) {
+          best = {
+            i,
+            avg,
+            maxGust: Math.max(...sc.map((x) => x.gust)),
+            temp: sc[1].t,
+            from: hourly.time[i].slice(11, 16),
+            to: hourly.time[Math.min(i + 3, hourly.time.length - 1)].slice(11, 16)
+          };
+        }
+      }
+      return best;
     }
 
     function gearAdvice(t, chill, rainLikely) {
@@ -2588,6 +2787,9 @@
       els.currentIcon.innerHTML = lucideSvg('cloud-sun');
       document.getElementById('advisorHeaderIcon').innerHTML = lucideSvg('bike');
       document.getElementById('routeHeaderIcon').innerHTML = lucideSvg('route');
+      document.getElementById('radarHeaderIcon').innerHTML = lucideSvg('radar');
+      document.getElementById('radarPlay').innerHTML = lucideSvg('play');
+      document.getElementById('rideNotifyTestIcon').innerHTML = lucideSvg('bike');
       document.getElementById('fcHeaderIcon').innerHTML = lucideSvg('table');
       document.getElementById('gustIcon').innerHTML = lucideSvg('wind');
       document.getElementById('chillIcon').innerHTML = lucideSvg('snowflake');
@@ -2989,19 +3191,11 @@
       });
 
       // 2. Best 3-hour daylight riding window (next ~20 hours)
-      let best = null;
-      for (let i = startIndex; i < Math.min(startIndex + 20, hourly.time.length - 2); i++) {
-        if (hv(hourly.is_day, i, 1) === 0 || hv(hourly.is_day, i + 2, 1) === 0) continue;
-        const sc = [0, 1, 2].map((k) => computeRideScore(hourly, i + k));
-        const avg = sc.reduce((acc, x) => acc + x.score, 0) / 3;
-        if (!best || avg > best.avg) {
-          best = { i, avg, maxGust: Math.max(...sc.map((x) => x.gust)), temp: sc[1].t };
-        }
-      }
+      const best = findBestWindow(hourly, startIndex, startIndex + 20);
       if (best) {
         const isToday = hourly.time[best.i].slice(0, 10) === current.time.slice(0, 10);
-        const fromHr = hourly.time[best.i].slice(11, 16);
-        const toHr = hourly.time[Math.min(best.i + 3, hourly.time.length - 1)].slice(11, 16);
+        const fromHr = best.from;
+        const toHr = best.to;
         tips.push({
           icon: 'clock',
           level: best.avg < 40 ? 'warn' : '',
@@ -3320,41 +3514,170 @@
       return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}`;
     }
 
+    // ===== Leaflet (loaded on demand for route & radar maps) =====
+    let leafletPromise = null;
+    function ensureLeaflet() {
+      if (window.L) return Promise.resolve(window.L);
+      if (!leafletPromise) {
+        leafletPromise = new Promise((resolve, reject) => {
+          const css = document.createElement('link');
+          css.rel = 'stylesheet';
+          css.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
+          document.head.appendChild(css);
+          const js = document.createElement('script');
+          js.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+          js.onload = () => resolve(window.L);
+          js.onerror = () => {
+            leafletPromise = null;
+            reject(new Error('leaflet'));
+          };
+          document.head.appendChild(js);
+        });
+      }
+      return leafletPromise;
+    }
+
+    function baseMapLayer(L) {
+      return L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>'
+      });
+    }
+
+    const RIDE_COLORS = {
+      'ride-great': '#22c55e',
+      'ride-good': '#a3e635',
+      'ride-caution': '#f59e0b',
+      'ride-poor': '#f97316',
+      'ride-bad': '#ef4444'
+    };
+
+    // ===== Real route (OSRM) =====
+    async function fetchOsrmRoute(a, b) {
+      const url = `https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=full&geometries=geojson`;
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('osrm');
+      const data = await res.json();
+      const r = data.routes && data.routes[0];
+      if (!r) throw new Error('osrm');
+      return {
+        km: r.distance / 1000,
+        hours: r.duration / 3600,
+        coords: r.geometry.coordinates.map(([lon, lat]) => ({ lat, lon })),
+        real: true
+      };
+    }
+
+    function straightRoute(a, b) {
+      const km = haversineKm(a, b) * 1.35;
+      return { km, hours: km / 55, coords: [{ lat: a.lat, lon: a.lon }, { lat: b.lat, lon: b.lon }], real: false };
+    }
+
+    // Weather check points every ~20 km along the route (max 7)
+    function sampleRoute(route) {
+      const c = route.coords;
+      const cum = [0];
+      for (let i = 1; i < c.length; i++) cum.push(cum[i - 1] + haversineKm(c[i - 1], c[i]));
+      const total = cum[cum.length - 1] || 1;
+      const n = Math.min(7, Math.max(2, Math.round(total / 20) + 1));
+      const pts = [];
+      let j = 0;
+      for (let k = 0; k < n; k++) {
+        const target = (total * k) / (n - 1);
+        while (j < cum.length - 1 && cum[j] < target) j++;
+        if (c.length === 2) {
+          const f = k / (n - 1);
+          pts.push({ lat: c[0].lat + (c[1].lat - c[0].lat) * f, lon: c[0].lon + (c[1].lon - c[0].lon) * f, frac: f });
+        } else {
+          pts.push({ lat: c[j].lat, lon: c[j].lon, frac: target / total });
+        }
+      }
+      return pts;
+    }
+
+    let routeMap = null;
+    let routeLayer = null;
+
+    async function drawRouteMap(route, points) {
+      const box = document.getElementById('routeMap');
+      box.classList.remove('hidden');
+      try {
+        const L = await ensureLeaflet();
+        if (!routeMap) {
+          routeMap = L.map(box, { zoomControl: false, scrollWheelZoom: false });
+          baseMapLayer(L).addTo(routeMap);
+          routeLayer = L.layerGroup().addTo(routeMap);
+        }
+        routeMap.invalidateSize();
+        routeLayer.clearLayers();
+        const line = L.polyline(route.coords.map((p) => [p.lat, p.lon]), {
+          color: '#fbbf24',
+          weight: 5,
+          opacity: 0.9,
+          dashArray: route.real ? null : '8 8'
+        }).addTo(routeLayer);
+        points.forEach((p) => {
+          L.circleMarker([p.lat, p.lon], {
+            radius: 9,
+            color: '#0b1220',
+            weight: 2,
+            fillColor: RIDE_COLORS[p.cls] || '#94a3b8',
+            fillOpacity: 1
+          }).bindTooltip(`${p.name}: ${p.score}/100`).addTo(routeLayer);
+        });
+        routeMap.fitBounds(line.getBounds(), { padding: [24, 24] });
+      } catch {
+        box.classList.add('hidden');
+      }
+    }
+
     async function runRouteCheck() {
       const destIdx = els.routeDest.value;
+      const pointsBox = document.getElementById('routePoints');
+      const mapBox = document.getElementById('routeMap');
       if (destIdx === '' || !routeOptions[destIdx] || !lastWeatherData || !activeLocation) {
         els.routeResult.innerHTML = '<p class="route-empty">Διάλεξε προορισμό για να δεις τον καιρό σε όλη τη διαδρομή.</p>';
+        pointsBox.innerHTML = '';
+        mapBox.classList.add('hidden');
         return;
       }
       const dest = routeOptions[destIdx];
       localStorage.setItem(STORAGE_KEY_ROUTE_DEST, dest.name);
       const reqId = ++routeRequestId;
-      els.routeResult.innerHTML = '<p class="route-empty">Έλεγχος καιρού στη διαδρομή...</p>';
+      els.routeResult.innerHTML = '<p class="route-empty">Υπολογισμός διαδρομής & καιρού...</p>';
 
-      const roadKm = haversineKm(activeLocation, dest) * 1.35;
-      const durH = roadKm / 55;
-      const mid = { lat: (activeLocation.lat + dest.lat) / 2, lon: (activeLocation.lon + dest.lon) / 2 };
       const dayIdx = Number(els.routeDay.value || 0);
       const depHour = Number(els.routeHour.value || 9);
       const dateIso = lastWeatherData.daily.time[dayIdx];
 
+      let route;
+      try {
+        route = await fetchOsrmRoute(activeLocation, dest);
+      } catch {
+        route = straightRoute(activeLocation, dest);
+      }
+      if (reqId !== routeRequestId) return;
+
+      const samples = sampleRoute(route);
       const params = new URLSearchParams({
-        latitude: `${mid.lat.toFixed(4)},${dest.lat}`,
-        longitude: `${mid.lon.toFixed(4)},${dest.lon}`,
+        latitude: samples.map((p) => p.lat.toFixed(4)).join(','),
+        longitude: samples.map((p) => p.lon.toFixed(4)).join(','),
         hourly: 'temperature_2m,precipitation_probability,precipitation,weather_code,is_day,wind_speed_10m,wind_direction_10m,wind_gusts_10m,visibility',
-        timezone: 'auto'
+        timezone: 'auto',
+        forecast_days: '7'
       });
 
-      let remote;
-      let midName;
+      let remoteArr;
+      let names;
       try {
-        const [res, name] = await Promise.all([
+        const [res, ...midNames] = await Promise.all([
           fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`),
-          reverseGeocode(mid.lat, mid.lon)
+          ...samples.slice(1, -1).map((p) => reverseGeocode(p.lat, p.lon, true))
         ]);
         if (!res.ok) throw new Error('route');
-        remote = await res.json();
-        midName = name && name !== 'Η τοποθεσία μου' ? `${name} (μέσο διαδρομής)` : 'Μέσο διαδρομής';
+        const json = await res.json();
+        remoteArr = Array.isArray(json) ? json : [json];
+        names = [activeLocation.name, ...midNames.map((n) => (n && n !== 'Η τοποθεσία μου' ? n : 'Ενδιάμεσο σημείο')), dest.name];
       } catch {
         if (reqId === routeRequestId) {
           els.routeResult.innerHTML = '<p class="route-empty">Δεν ήταν δυνατός ο έλεγχος διαδρομής (εκτός σύνδεσης;).</p>';
@@ -3362,56 +3685,280 @@
         return;
       }
       if (reqId !== routeRequestId) return;
-      const remoteArr = Array.isArray(remote) ? remote : [remote];
 
-      const points = [
-        { name: activeLocation.name, sub: 'Αναχώρηση', hourly: lastWeatherData.hourly, off: 0, icon: 'map-pin' },
-        { name: midName, sub: 'Ενδιάμεσα', hourly: remoteArr[0] && remoteArr[0].hourly, off: durH / 2, icon: 'navigation' },
-        { name: dest.name, sub: 'Άφιξη', hourly: remoteArr[1] && remoteArr[1].hourly, off: durH, icon: 'flag' }
-      ];
+      const points = [];
+      samples.forEach((smp, k) => {
+        const data = remoteArr[k];
+        if (!data || !data.hourly) return;
+        const offH = smp.frac * route.hours;
+        const key = hourKeyFrom(dateIso, Math.round(depHour + offH));
+        const idx = data.hourly.time.findIndex((t) => t.slice(0, 13) === key);
+        if (idx === -1) return;
+        const r = computeRideScore(data.hourly, idx);
+        const clock = new Date(new Date(`${dateIso}T00:00:00`).getTime() + (depHour + offH) * 3600000);
+        points.push({
+          ...smp,
+          r,
+          score: r.score,
+          cls: rideLevel(r.score).cls,
+          name: names[k],
+          km: Math.round(smp.frac * route.km),
+          elev: data.elevation != null ? Math.round(data.elevation) : null,
+          time: `${String(clock.getHours()).padStart(2, '0')}:${String(clock.getMinutes()).padStart(2, '0')}`,
+          info: getWeatherInfo(hv(data.hourly.weather_code, idx, 0), hv(data.hourly.is_day, idx, 1)),
+          dir: hv(data.hourly.wind_direction_10m, idx, NaN)
+        });
+      });
 
-      let worst = null;
-      const rowsHtml = points.map((p) => {
-        if (!p.hourly) return '';
-        const key = hourKeyFrom(dateIso, depHour + Math.round(p.off));
-        const idx = p.hourly.time.findIndex((t) => t.slice(0, 13) === key);
-        if (idx === -1) return '';
-        const r = computeRideScore(p.hourly, idx);
-        const rl = rideLevel(r.score);
-        if (!worst || r.score < worst.r.score) worst = { r, p };
-        const info = getWeatherInfo(hv(p.hourly.weather_code, idx, 0), hv(p.hourly.is_day, idx, 1));
-        const dir = hv(p.hourly.wind_direction_10m, idx, NaN);
-        const rainTxt = r.mm >= 0.1 ? `${r.mm.toFixed(1)} mm` : `${r.pop}% βροχή`;
-        return `
-          <div class="route-point">
-            ${lucideSvg(info.icon)}
-            <div>
-              <div class="route-point-name">${p.name}</div>
-              <div class="route-point-sub">${p.sub} ~${key.slice(11, 13)}:00 • ${Math.round(r.t)}°C • ${Number.isNaN(dir) ? '' : windDirText(dir) + ' '}${beaufortNum(r.wind)} Bf, ριπές ${Math.round(r.gust)} • ${rainTxt}</div>
-            </div>
-            <span class="ride-chip ${rl.cls}">${r.score}</span>
-          </div>
-        `;
-      }).join('');
-
-      if (!worst) {
+      if (!points.length) {
         els.routeResult.innerHTML = '<p class="route-empty">Η ώρα αναχώρησης είναι εκτός διαθέσιμης πρόγνωσης.</p>';
+        pointsBox.innerHTML = '';
+        mapBox.classList.add('hidden');
         return;
       }
 
-      const wl = rideLevel(worst.r.score);
-      const hrs = Math.floor(durH);
-      const mins = Math.round((durH - hrs) * 60);
+      const worst = points.reduce((w, p) => (p.score < w.score ? p : w), points[0]);
+      const wl = rideLevel(worst.score);
+      const hrs = Math.floor(route.hours);
+      const mins = Math.round((route.hours - hrs) * 60);
+      const highest = points.reduce((h, p) => (p.elev != null && p.elev > (h.elev || 0) ? p : h), points[0]);
+
       els.routeResult.innerHTML = `
         <div class="route-summary ${wl.cls}">
-          <span class="ride-pill-score">${worst.r.score}</span>
+          <span class="ride-pill-score">${worst.score}</span>
           <div>
             <div class="route-summary-title">${wl.label} στη διαδρομή</div>
-            <div class="route-summary-sub">~${Math.round(roadKm)} km • ~${hrs ? `${hrs}ώ ` : ''}${mins}λ${worst.r.reasons.length ? ` • Χειρότερο σημείο: ${worst.p.name.split(' (')[0]} (${worst.r.reasons[0].text})` : ''}</div>
+            <div class="route-summary-sub">${Math.round(route.km)} km • ~${hrs ? `${hrs}ώ ` : ''}${mins}λ${worst.r.reasons.length ? ` • Χειρότερο σημείο: ${worst.name} (${worst.r.reasons[0].text})` : ''}</div>
           </div>
         </div>
-        <div class="route-points">${rowsHtml}</div>
+        <div class="route-meta">${route.real ? 'Πραγματική οδική διαδρομή (OSRM)' : 'Εκτίμηση σε ευθεία (η δρομολόγηση δεν ήταν διαθέσιμη)'}${highest.elev != null ? ` • Υψηλότερο σημείο ελέγχου: ${highest.name} ~${highest.elev} m` : ''}</div>
       `;
+
+      pointsBox.innerHTML = points.map((p, k) => `
+        <div class="route-point">
+          ${lucideSvg(p.info.icon)}
+          <div>
+            <div class="route-point-name">${p.name}${k === 0 ? ' (αναχώρηση)' : (k === points.length - 1 ? ' (άφιξη)' : '')}</div>
+            <div class="route-point-sub">~${p.time} • ${p.km} km${p.elev != null ? ` • ${p.elev} m` : ''} • ${Math.round(p.r.t)}°C • ${Number.isNaN(p.dir) ? '' : windDirText(p.dir) + ' '}${beaufortNum(p.r.wind)} Bf, ριπές ${Math.round(p.r.gust)} • ${p.r.mm >= 0.1 ? `${p.r.mm.toFixed(1)} mm` : `${p.r.pop}% βροχή`}</div>
+          </div>
+          <span class="ride-chip ${p.cls}">${p.score}</span>
+        </div>
+      `).join('');
+
+      drawRouteMap(route, points);
+    }
+
+    // ===== Rain radar (RainViewer) =====
+    let radarMap = null;
+    let radarMarker = null;
+    let radarLayers = [];
+    let radarFrames = [];
+    let radarIdx = 0;
+    let radarTimer = null;
+    let radarLoadedAt = 0;
+    let radarStarted = false;
+
+    function showRadarFrame(i) {
+      if (!radarLayers.length) return;
+      radarLayers[radarIdx] && radarLayers[radarIdx].setOpacity(0);
+      radarIdx = (i + radarLayers.length) % radarLayers.length;
+      radarLayers[radarIdx].setOpacity(0.75);
+      const f = radarFrames[radarIdx];
+      const d = new Date(f.time * 1000);
+      document.getElementById('radarSlider').value = String(radarIdx);
+      document.getElementById('radarTime').textContent = `${f.nowcast ? 'Πρόβλ. ' : ''}${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+      const minsAgo = Math.round((Date.now() - d.getTime()) / 60000);
+      document.getElementById('radarStatus').textContent = minsAgo <= 15 ? 'Ζωντανά' : `πριν ${minsAgo}λ`;
+    }
+
+    function stopRadarAnimation() {
+      if (radarTimer) {
+        clearInterval(radarTimer);
+        radarTimer = null;
+      }
+      document.getElementById('radarPlay').innerHTML = lucideSvg('play');
+    }
+
+    function toggleRadarAnimation() {
+      if (radarTimer) {
+        stopRadarAnimation();
+        return;
+      }
+      if (!radarLayers.length) return;
+      document.getElementById('radarPlay').innerHTML = lucideSvg('pause');
+      radarTimer = setInterval(() => showRadarFrame(radarIdx + 1), 700);
+    }
+
+    async function loadRadarFrames(L) {
+      const res = await fetch('https://api.rainviewer.com/public/weather-maps.json');
+      if (!res.ok) throw new Error('radar');
+      const data = await res.json();
+      radarLayers.forEach((l) => radarMap.removeLayer(l));
+      radarFrames = [
+        ...(data.radar.past || []),
+        ...((data.radar.nowcast || []).map((f) => ({ ...f, nowcast: true })))
+      ];
+      radarLayers = radarFrames.map((f) => L.tileLayer(`${data.host}${f.path}/256/{z}/{x}/{y}/2/1_1.png`, {
+        opacity: 0,
+        maxNativeZoom: 7,
+        maxZoom: 18,
+        zIndex: 10,
+        attribution: 'Ραντάρ © RainViewer'
+      }).addTo(radarMap));
+      const slider = document.getElementById('radarSlider');
+      slider.max = String(Math.max(radarLayers.length - 1, 0));
+      const lastPast = (data.radar.past || []).length - 1;
+      radarIdx = 0;
+      showRadarFrame(Math.max(lastPast, 0));
+      radarLoadedAt = Date.now();
+    }
+
+    async function initRadar() {
+      if (!activeLocation) return;
+      radarStarted = true;
+      try {
+        const L = await ensureLeaflet();
+        if (!radarMap) {
+          radarMap = L.map('radarMap', { zoomControl: true, scrollWheelZoom: false, maxZoom: 10 })
+            .setView([activeLocation.lat, activeLocation.lon], 7);
+          baseMapLayer(L).addTo(radarMap);
+          radarMarker = L.circleMarker([activeLocation.lat, activeLocation.lon], {
+            radius: 7, color: '#ffffff', weight: 2, fillColor: '#f97316', fillOpacity: 1
+          }).addTo(radarMap);
+        }
+        if (Date.now() - radarLoadedAt > 10 * 60 * 1000) await loadRadarFrames(L);
+      } catch {
+        document.getElementById('radarStatus').textContent = 'Μη διαθέσιμο';
+      }
+    }
+
+    function updateRadarLocation() {
+      if (!radarMap || !activeLocation) return;
+      radarMap.setView([activeLocation.lat, activeLocation.lon], radarMap.getZoom());
+      radarMarker.setLatLng([activeLocation.lat, activeLocation.lon]);
+      if (Date.now() - radarLoadedAt > 10 * 60 * 1000) initRadar();
+    }
+
+    // ===== Ride notification (before the ride) =====
+    const STORAGE_KEY_RIDE_NOTIFY = 'motoweather_ride_notify';
+    const STORAGE_KEY_RIDE_LAST = 'motoweather_ride_notify_last';
+    const WEEK_DAYS = [
+      { d: 1, label: 'Δε' }, { d: 2, label: 'Τρ' }, { d: 3, label: 'Τε' }, { d: 4, label: 'Πε' },
+      { d: 5, label: 'Πα' }, { d: 6, label: 'Σα' }, { d: 0, label: 'Κυ' }
+    ];
+
+    function loadRideNotify() {
+      try {
+        const cfg = JSON.parse(localStorage.getItem(STORAGE_KEY_RIDE_NOTIFY) || 'null');
+        if (cfg && Array.isArray(cfg.days)) return cfg;
+      } catch {
+        // ignore malformed settings
+      }
+      return { enabled: false, days: [6, 0], hour: 8 };
+    }
+
+    function saveRideNotify(cfg) {
+      localStorage.setItem(STORAGE_KEY_RIDE_NOTIFY, JSON.stringify(cfg));
+      renderRideNotifySettings();
+    }
+
+    function renderRideNotifySettings() {
+      const cfg = loadRideNotify();
+      const box = document.getElementById('rideNotifyDays');
+      box.innerHTML = '';
+      WEEK_DAYS.forEach(({ d, label }) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = `day-toggle ${cfg.days.includes(d) ? 'on' : ''}`;
+        b.textContent = label;
+        b.setAttribute('aria-pressed', cfg.days.includes(d) ? 'true' : 'false');
+        b.addEventListener('click', () => {
+          const c = loadRideNotify();
+          c.days = c.days.includes(d) ? c.days.filter((x) => x !== d) : [...c.days, d];
+          saveRideNotify(c);
+        });
+        box.appendChild(b);
+      });
+      const sel = document.getElementById('rideNotifyHour');
+      if (!sel.options.length) {
+        for (let h = 5; h <= 12; h++) sel.add(new Option(`${String(h).padStart(2, '0')}:00`, String(h)));
+      }
+      sel.value = String(cfg.hour);
+      const enabled = cfg.enabled && 'Notification' in window && Notification.permission === 'granted';
+      const btn = document.getElementById('rideNotifyBtn');
+      btn.classList.toggle('saved', enabled);
+      document.getElementById('rideNotifyIcon').innerHTML = lucideSvg(enabled ? 'bell-ring' : 'bell');
+      document.getElementById('rideNotifyText').textContent = enabled ? 'Ενεργή' : 'Ενεργοποίηση';
+    }
+
+    async function ensureNotifyPermission() {
+      const isIosDevice = /iPad|iPhone|iPod/.test(navigator.userAgent);
+      const isStandaloneMode = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+      if (!('Notification' in window)) {
+        showStatus(isIosDevice && !isStandaloneMode
+          ? 'Στο iPhone οι ειδοποιήσεις λειτουργούν αφού προσθέσετε την εφαρμογή στην Οθόνη Αφετηρίας.'
+          : 'Ο browser σας δεν υποστηρίζει ειδοποιήσεις.');
+        return false;
+      }
+      if (Notification.permission === 'granted') return true;
+      const perm = await Notification.requestPermission();
+      if (perm !== 'granted') {
+        showStatus('Δεν δόθηκε άδεια για ειδοποιήσεις στις ρυθμίσεις της συσκευής.');
+        return false;
+      }
+      return true;
+    }
+
+    function buildRideMessage(dayOffset) {
+      const { current, hourly, daily } = lastWeatherData;
+      const startIndex = getNowIndex(current, hourly);
+      const dateIso = daily.time[dayOffset];
+      let from = -1;
+      let to = -1;
+      hourly.time.forEach((t, i) => {
+        if (t.startsWith(dateIso)) {
+          if (from === -1) from = i;
+          to = i + 1;
+        }
+      });
+      if (dayOffset === 0) from = Math.max(from, startIndex);
+      const score = dailyRideScore(hourly, dateIso, dayOffset === 0 ? startIndex : 0);
+      const best = from !== -1 ? findBestWindow(hourly, from, to) : null;
+      const dayWord = dayOffset === 0 ? 'Σήμερα' : 'Αύριο';
+      const lvl = rideLevel(score != null ? score : (best ? Math.round(best.avg) : 0));
+      const title = `🏍️ ${dayWord}: ${lvl.label}${score != null ? ` (${score}/100)` : ''} — ${activeLocation.name}`;
+      const parts = [];
+      if (best) parts.push(`Καλύτερο παράθυρο ${best.from}–${best.to} (${Math.round(best.avg)}/100)`);
+      parts.push(`${Math.round(hv(daily.temperature_2m_min, dayOffset))}°–${Math.round(hv(daily.temperature_2m_max, dayOffset))}°C`);
+      if (daily.wind_gusts_10m_max) parts.push(`ριπές έως ${Math.round(hv(daily.wind_gusts_10m_max, dayOffset))} km/h`);
+      parts.push(`βροχή ${Math.round(hv(daily.precipitation_probability_max, dayOffset))}%`);
+      return { title, body: parts.join(' • ') };
+    }
+
+    function evaluateRideNotification(force = false) {
+      if (!lastWeatherData || !activeLocation) return;
+      const cfg = loadRideNotify();
+      if (!force && (!cfg.enabled || !('Notification' in window) || Notification.permission !== 'granted')) return;
+
+      const now = new Date(lastWeatherData.current.time);
+      const hour = now.getHours();
+      let dayOffset = null;
+      if (force) {
+        dayOffset = hour >= 19 ? 1 : 0;
+      } else if (cfg.days.includes(now.getDay()) && hour >= cfg.hour && hour < 19) {
+        dayOffset = 0;
+      } else if (cfg.days.includes((now.getDay() + 1) % 7) && hour >= 19) {
+        dayOffset = 1;
+      }
+      if (dayOffset === null || dayOffset >= lastWeatherData.daily.time.length) return;
+
+      const key = `${lastWeatherData.daily.time[dayOffset]}-${dayOffset}`;
+      if (!force) {
+        if (localStorage.getItem(STORAGE_KEY_RIDE_LAST) === key) return;
+        localStorage.setItem(STORAGE_KEY_RIDE_LAST, key);
+      }
+      const msg = buildRideMessage(dayOffset);
+      sendSystemNotification(msg.title, msg.body, 'motoweather-ride');
     }
 
     function renderAirAndAstro(daily, airData) {
@@ -3620,6 +4167,8 @@
       renderForecastTable();
       populateRouteControls();
       runRouteCheck();
+      updateRadarLocation();
+      evaluateRideNotification(false);
       renderAirAndAstro(daily, lastAirData);
 
       // Render Dedicated Rain Analysis Card & Day Tabs
@@ -3645,13 +4194,14 @@
     }
 
     // Reverse Geocode coordinates to Greek locality name
-    async function reverseGeocode(lat, lon) {
+    async function reverseGeocode(lat, lon, preferLocality = false) {
       try {
         const res = await fetch(
           `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=el`
         );
         if (!res.ok) throw new Error('Reverse geocode error');
         const data = await res.json();
+        if (preferLocality && data.locality) return data.locality;
         return data.city || data.locality || data.principalSubdivision || 'Η τοποθεσία μου';
       } catch {
         return 'Η τοποθεσία μου';
@@ -3817,6 +4367,50 @@
     });
 
     els.routeDest.addEventListener('change', runRouteCheck);
+
+    document.getElementById('radarPlay').addEventListener('click', toggleRadarAnimation);
+    document.getElementById('radarSlider').addEventListener('input', (e) => {
+      stopRadarAnimation();
+      showRadarFrame(Number(e.target.value));
+    });
+    if ('IntersectionObserver' in window) {
+      const radarObserver = new IntersectionObserver((entries) => {
+        if (entries.some((en) => en.isIntersecting)) {
+          if (!radarStarted || Date.now() - radarLoadedAt > 10 * 60 * 1000) initRadar();
+        } else {
+          stopRadarAnimation();
+        }
+      }, { rootMargin: '200px' });
+      radarObserver.observe(document.getElementById('radarCard'));
+    } else {
+      setTimeout(initRadar, 1500);
+    }
+
+    document.getElementById('rideNotifyHour').addEventListener('change', (e) => {
+      const c = loadRideNotify();
+      c.hour = Number(e.target.value);
+      saveRideNotify(c);
+    });
+    document.getElementById('rideNotifyBtn').addEventListener('click', async () => {
+      const c = loadRideNotify();
+      const isOn = c.enabled && 'Notification' in window && Notification.permission === 'granted';
+      if (isOn) {
+        c.enabled = false;
+        saveRideNotify(c);
+        showStatus('Η ειδοποίηση βόλτας απενεργοποιήθηκε.');
+        return;
+      }
+      if (!(await ensureNotifyPermission())) return;
+      c.enabled = true;
+      saveRideNotify(c);
+      showStatus('');
+      evaluateRideNotification(false);
+    });
+    document.getElementById('rideNotifyTest').addEventListener('click', async () => {
+      if (!(await ensureNotifyPermission())) return;
+      renderRideNotifySettings();
+      evaluateRideNotification(true);
+    });
     els.routeDay.addEventListener('change', runRouteCheck);
     els.routeHour.addEventListener('change', runRouteCheck);
 
@@ -4204,6 +4798,7 @@
       loadSavedCities();
       renderSavedCitiesBar();
       updateNotifyButtonState();
+      renderRideNotifySettings();
 
       const savedRaw = localStorage.getItem(STORAGE_KEY_LOCATION);
       if (savedRaw) {

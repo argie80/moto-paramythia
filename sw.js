@@ -1,4 +1,4 @@
-const CACHE_NAME = 'motoweather-v2';
+const CACHE_NAME = 'motoweather-v3';
 const ASSETS = [
   './',
   './index.html',
