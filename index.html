@@ -1309,6 +1309,19 @@
       flex-shrink: 0;
     }
 
+    .android-install-btn {
+      margin-top: 0.6rem;
+      width: auto;
+      padding: 0.5rem 0.9rem;
+      background: #f97316;
+      border-color: #f97316;
+      color: #ffffff;
+    }
+
+    .android-install-btn[hidden] {
+      display: none;
+    }
+
     .footer-meta {
       text-align: center;
       font-size: 0.78rem;
@@ -2383,6 +2396,24 @@
       <button type="button" id="dismissIosCard" class="dismiss-btn">Κλείσιμο</button>
     </aside>
 
+    <!-- Android Install Tip -->
+    <aside id="androidInstallCard" class="glass-card ios-install-card">
+      <div class="ios-install-text">
+        <div class="ios-install-title">
+          <span aria-hidden="true" id="androidPhoneIcon"></span>
+          <span class="aligned-label">Εγκατάσταση ως App στο Android</span>
+        </div>
+        <div>
+          Στο <b>Chrome</b> πάτησε το μενού <b>⋮</b> (πάνω δεξιά) και επίλεξε <b>«Εγκατάσταση εφαρμογής»</b> ή <b>«Προσθήκη στην αρχική οθόνη»</b>.
+        </div>
+        <button type="button" id="androidInstallBtn" class="menu-action-btn android-install-btn" hidden>
+          <span aria-hidden="true" id="androidInstallBtnIcon"></span>
+          <span class="aligned-label">Εγκατάσταση τώρα</span>
+        </button>
+      </div>
+      <button type="button" id="dismissAndroidCard" class="dismiss-btn">Κλείσιμο</button>
+    </aside>
+
     <footer class="footer-meta">
       Moto Παραμυθιά • <span id="lastUpdated">Ενημέρωση: —</span> • Δεδομένα: <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>
     </footer>
@@ -2438,6 +2469,7 @@
       'table': '<path d="M12 3v18"/><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/>',
       'wrench': '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
       'flag': '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" x2="4" y1="22" y2="15"/>',
+      'download': '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>',
       'chevron-down': '<path d="m6 9 6 6 6-6"/>',
       'play': '<polygon points="6 3 20 12 6 21 6 3"/>',
       'pause': '<rect x="14" y="4" width="4" height="16" rx="1"/><rect x="6" y="4" width="4" height="16" rx="1"/>',
@@ -2954,6 +2986,8 @@
       document.getElementById('uvIcon').innerHTML = lucideSvg('sun');
       document.getElementById('iosPhoneIcon').innerHTML = lucideSvg('smartphone');
       document.getElementById('iosShareInlineIcon').innerHTML = lucideSvg('share');
+      document.getElementById('androidPhoneIcon').innerHTML = lucideSvg('smartphone');
+      document.getElementById('androidInstallBtnIcon').innerHTML = lucideSvg('download');
     }
 
     function showStatus(msg) {
@@ -4868,14 +4902,47 @@
       }
     }, 30 * 60 * 1000);
 
-    // iOS Standalone Banner Check
+    // Install tips: iPhone users see the iOS card, Android users the Android card, desktop both
+    const STORAGE_KEY_DISMISS_ANDROID = 'motoweather_dismiss_android_tip';
     const isStandalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
-    if (!isStandalone && !localStorage.getItem(STORAGE_KEY_DISMISS_IOS)) {
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    const androidCard = document.getElementById('androidInstallCard');
+    const androidInstallBtn = document.getElementById('androidInstallBtn');
+    let deferredInstallPrompt = null;
+
+    if (!isStandalone && !isAndroid && !localStorage.getItem(STORAGE_KEY_DISMISS_IOS)) {
       els.iosInstallCard.classList.add('visible');
+    }
+    if (!isStandalone && !isIOS && !localStorage.getItem(STORAGE_KEY_DISMISS_ANDROID)) {
+      androidCard.classList.add('visible');
     }
     els.dismissIosCard.addEventListener('click', () => {
       els.iosInstallCard.classList.remove('visible');
       localStorage.setItem(STORAGE_KEY_DISMISS_IOS, '1');
+    });
+    document.getElementById('dismissAndroidCard').addEventListener('click', () => {
+      androidCard.classList.remove('visible');
+      localStorage.setItem(STORAGE_KEY_DISMISS_ANDROID, '1');
+    });
+
+    // Chrome/Android: offer a one-tap install button when the browser allows it
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      androidInstallBtn.hidden = false;
+    });
+    androidInstallBtn.addEventListener('click', async () => {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      const choice = await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      androidInstallBtn.hidden = true;
+      if (choice.outcome === 'accepted') androidCard.classList.remove('visible');
+    });
+    window.addEventListener('appinstalled', () => {
+      androidCard.classList.remove('visible');
+      deferredInstallPrompt = null;
     });
 
     // Register Service Worker for PWA support
