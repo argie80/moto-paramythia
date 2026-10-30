@@ -1,6 +1,6 @@
 {
-  "name": "Moto Παραμυθιά — Καιρός για Βόλτα",
-  "short_name": "Moto Καιρός",
+  "name": "Moto Παραμυθιά",
+  "short_name": "Moto Παραμυθιά",
   "description": "Καιρός για μοτοσυκλετιστές: δείκτης βόλτας, άνεμος & ριπές, κατάσταση δρόμου, ρουχισμός και έλεγχος διαδρομής",
   "start_url": "./index.html",
   "scope": "./",
@@ -11,8 +11,8 @@
   "lang": "el",
   "icons": [
     {
-      "src": "icon-180.png",
-      "sizes": "180x180",
+      "src": "icon-192.png",
+      "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
@@ -20,12 +20,31 @@
       "src": "icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "icon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
+  ],
+  "id": "./",
+  "categories": [
+    "weather",
+    "travel",
+    "navigation"
   ]
 }

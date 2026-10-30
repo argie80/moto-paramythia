@@ -1,11 +1,13 @@
-const CACHE_NAME = 'motoweather-v4';
+const CACHE_NAME = 'motoweather-v5';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon.svg',
   './icon-180.png',
-  './icon-512.png'
+  './icon-512.png',
+  './icon-192.png',
+  './icon-maskable-512.png'
 ];
 
 self.addEventListener('install', (event) => {
