@@ -1,23 +1,53 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1e90ff" />
-      <stop offset="50%" stop-color="#0066cc" />
-      <stop offset="100%" stop-color="#0a2e5c" />
+    <linearGradient id="sky" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e6fd9" />
+      <stop offset="60%" stop-color="#0d3a75" />
+      <stop offset="100%" stop-color="#0a1f3d" />
     </linearGradient>
     <linearGradient id="sun" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#ffe259" />
       <stop offset="100%" stop-color="#ffa751" />
     </linearGradient>
-    <linearGradient id="cloud" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#ffffff" />
-      <stop offset="100%" stop-color="#dbe9f6" />
+    <linearGradient id="shell" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ff8a3d" />
+      <stop offset="100%" stop-color="#e2420f" />
     </linearGradient>
-    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
-      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#001a38" flood-opacity="0.35" />
+    <linearGradient id="visor" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b4a63" />
+      <stop offset="100%" stop-color="#0b1220" />
+    </linearGradient>
+    <linearGradient id="road" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#2b3445" />
+      <stop offset="100%" stop-color="#151b26" />
+    </linearGradient>
+    <filter id="shadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#000814" flood-opacity="0.45" />
     </filter>
   </defs>
-  <rect width="512" height="512" rx="115" fill="url(#bg)" />
-  <circle cx="200" cy="195" r="88" fill="url(#sun)" filter="url(#shadow)" />
-  <path d="M165 365h195c44 0 80-36 80-80 0-40-29-73-68-79-11-52-57-91-112-91-59 0-108 45-114 103-38 6-66 39-66 78 0 38 31 69 85 69z" fill="url(#cloud)" filter="url(#shadow)" />
+
+  <!-- Sky -->
+  <rect width="512" height="512" fill="url(#sky)" />
+
+  <!-- Sun -->
+  <circle cx="368" cy="138" r="70" fill="url(#sun)" />
+
+  <!-- Small cloud -->
+  <path d="M92 190h110c22 0 40-18 40-40s-18-40-40-40c-4 0-8 1-12 2-9-21-30-36-54-36-31 0-57 24-59 55-19 4-33 20-33 40 0 11 9 19 19 19z" fill="#ffffff" opacity="0.92" />
+
+  <!-- Winding road -->
+  <path d="M0 440 C120 400 200 470 330 430 C420 402 470 410 512 420 L512 512 L0 512 Z" fill="url(#road)" />
+  <path d="M30 452 C130 425 205 482 330 448 C410 426 460 430 500 436" fill="none" stroke="#ffd166" stroke-width="7" stroke-linecap="round" stroke-dasharray="26 22" />
+
+  <!-- Full-face helmet (side view, facing right) -->
+  <g filter="url(#shadow)">
+    <path d="M132 352 C126 236 204 168 300 170 C384 172 436 232 436 304 L436 342 C436 360 424 372 406 372 L340 372 L312 404 L170 404 C148 404 134 390 133 370 Z" fill="url(#shell)" />
+    <!-- Visor -->
+    <path d="M292 232 C352 226 404 250 424 296 L424 312 L300 312 C278 312 268 298 270 276 C272 252 278 236 292 232 Z" fill="url(#visor)" />
+    <path d="M300 246 C340 244 376 256 396 280" fill="none" stroke="#ffffff" stroke-width="7" stroke-linecap="round" opacity="0.55" />
+    <!-- Racing stripe -->
+    <path d="M150 300 C160 232 214 192 286 190" fill="none" stroke="#ffffff" stroke-width="16" stroke-linecap="round" opacity="0.9" />
+    <!-- Chin vents -->
+    <path d="M360 340 h46 M350 354 h50" stroke="#7a1d05" stroke-width="7" stroke-linecap="round" opacity="0.6" />
+  </g>
 </svg>
