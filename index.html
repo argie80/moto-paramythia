@@ -1773,6 +1773,78 @@
       color: var(--dropdown-text);
     }
 
+    /* ===== Ride planner ===== */
+    .plan-card {
+      border-color: rgba(249, 115, 22, 0.5);
+      padding: 0.75rem 0.85rem;
+    }
+
+    .plan-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.55rem;
+    }
+
+    .plan-head-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .plan-summary {
+      font-size: 0.72rem;
+      text-transform: none;
+      letter-spacing: 0;
+      opacity: 0.85;
+      font-weight: 600;
+    }
+
+    .plan-card .rain-days-scroller {
+      margin-bottom: 0.45rem;
+    }
+
+    .plan-hours.hidden {
+      display: none;
+    }
+
+    .plan-badge {
+      display: none;
+      align-items: center;
+      gap: 0.4rem;
+      margin-top: 0.15rem;
+      padding: 0.3rem 0.4rem 0.3rem 0.75rem;
+      border-radius: 999px;
+      background: #f97316;
+      color: #ffffff;
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .plan-badge.visible {
+      display: inline-flex;
+    }
+
+    .plan-badge button {
+      font: inherit;
+      font-size: 0.75rem;
+      border: none;
+      border-radius: 999px;
+      padding: 0.2rem 0.55rem;
+      background: rgba(0, 0, 0, 0.25);
+      color: #ffffff;
+      cursor: pointer;
+    }
+
+    .fc-table tr.planned td {
+      background: rgba(249, 115, 22, 0.3);
+    }
+
     /* Daily ride score inside 7-day list */
     .day-name {
       display: inline-flex;
@@ -1825,10 +1897,27 @@
         <span id="currentHigh">Μέγ: --°</span>
         <span id="currentLow">Ελάχ: --°</span>
       </div>
+      <div class="plan-badge" id="planBadge">
+        <span id="planBadgeText"></span>
+        <button type="button" id="planResetBtn" aria-label="Επιστροφή στο τώρα">✕ Τώρα</button>
+      </div>
       <div class="ride-pill" id="ridePill" title="Δείκτης Βόλτας: 0 (αποφύγετε) έως 100 (ιδανικά)">
         <span class="ride-pill-score" id="ridePillScore">--</span>
         <span id="ridePillText" class="aligned-label">Υπολογισμός συνθηκών βόλτας...</span>
       </div>
+    </section>
+
+    <!-- Ride planner: pick day & hour, every card follows -->
+    <section class="glass-card plan-card" id="planCard" aria-labelledby="planHeading">
+      <div class="plan-head">
+        <span class="plan-head-left" id="planHeading">
+          <span aria-hidden="true" id="planHeaderIcon"></span>
+          <span class="aligned-label">Σχεδιασμός Βόλτας</span>
+        </span>
+        <span class="plan-summary" id="planSummary">Δες τον καιρό για όποια μέρα & ώρα θες</span>
+      </div>
+      <div class="rain-days-scroller" id="planDaysBar" role="tablist" aria-label="Ημέρα βόλτας"></div>
+      <div class="rain-days-scroller plan-hours" id="planHoursBar" role="tablist" aria-label="Ώρα αναχώρησης"></div>
     </section>
 
     <!-- Smart Menu Modal Dialog (All Options, Search & Saved Cities) -->
@@ -1944,14 +2033,7 @@
           Προορισμός
           <select id="routeDest"></select>
         </label>
-        <label class="route-field">
-          Ημέρα
-          <select id="routeDay"></select>
-        </label>
-        <label class="route-field">
-          Αναχώρηση
-          <select id="routeHour"></select>
-        </label>
+        <p class="route-field full" id="routeDepart" style="text-transform: none; letter-spacing: 0; font-size: 0.8rem;">Αναχώρηση: τώρα (άλλαξέ τη στον Σχεδιασμό Βόλτας)</p>
       </div>
       <div id="routeResult">
         <p class="route-empty">Διάλεξε προορισμό για να δεις τον καιρό σε όλη τη διαδρομή.</p>
@@ -2635,8 +2717,6 @@
       pressureVal: document.getElementById('pressureVal'),
       pressureSub: document.getElementById('pressureSub'),
       routeDest: document.getElementById('routeDest'),
-      routeDay: document.getElementById('routeDay'),
-      routeHour: document.getElementById('routeHour'),
       routeResult: document.getElementById('routeResult'),
       iosInstallCard: document.getElementById('iosInstallCard'),
       dismissIosCard: document.getElementById('dismissIosCard')
@@ -2787,6 +2867,7 @@
       els.currentIcon.innerHTML = lucideSvg('cloud-sun');
       document.getElementById('advisorHeaderIcon').innerHTML = lucideSvg('bike');
       document.getElementById('routeHeaderIcon').innerHTML = lucideSvg('route');
+      document.getElementById('planHeaderIcon').innerHTML = lucideSvg('calendar');
       document.getElementById('radarHeaderIcon').innerHTML = lucideSvg('radar');
       document.getElementById('radarPlay').innerHTML = lucideSvg('play');
       document.getElementById('rideNotifyTestIcon').innerHTML = lucideSvg('bike');
@@ -2834,7 +2915,7 @@
         latitude: loc.lat,
         longitude: loc.lon,
         current: 'temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,cloud_cover,pressure_msl',
-        hourly: 'temperature_2m,relative_humidity_2m,apparent_temperature,dew_point_2m,precipitation_probability,precipitation,weather_code,is_day,wind_speed_10m,wind_direction_10m,wind_gusts_10m,visibility,cloud_cover',
+        hourly: 'temperature_2m,relative_humidity_2m,apparent_temperature,dew_point_2m,precipitation_probability,precipitation,weather_code,is_day,wind_speed_10m,wind_direction_10m,wind_gusts_10m,visibility,cloud_cover,pressure_msl',
         daily: 'weather_code,temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_sum,precipitation_hours,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant,sunrise,sunset',
         timezone: 'auto'
       });
@@ -3170,7 +3251,9 @@
       });
     }
 
-    function renderSmartAdvisor(current, hourly, daily, startIndex, airData) {
+    function renderSmartAdvisor(current, hourly, daily, startIndex, airData, focus = null) {
+      const planned = !!(focus && focus.planned);
+      const dayOffset = planned ? focus.dayIdx : 0;
       els.advisorList.innerHTML = '';
       const tips = [];
       const end6 = Math.min(startIndex + 6, hourly.time.length);
@@ -3184,22 +3267,32 @@
       tips.push({
         icon: 'bike',
         level: now.score < 40 ? 'danger' : (now.score < 60 ? 'warn' : ''),
-        title: `Τώρα: ${lvl.label} (${now.score}/100)`,
+        title: `${planned ? focus.label : 'Τώρα'}: ${lvl.label} (${now.score}/100)`,
         sub: now.reasons.length
           ? `Παράγοντες: ${now.reasons.slice(0, 3).map((r) => r.text).join(' • ')}`
           : 'Χωρίς αρνητικούς παράγοντες — καλή βόλτα!'
       });
 
       // 2. Best 3-hour daylight riding window (next ~20 hours)
-      const best = findBestWindow(hourly, startIndex, startIndex + 20);
+      let best;
+      if (planned) {
+        // Whole planned day: is there a better time to leave?
+        const dIso = current.time.slice(0, 10);
+        const first = Math.max(hourly.time.findIndex((t) => t.startsWith(dIso)), getNowIndex(lastWeatherData.current, hourly));
+        best = findBestWindow(hourly, first, first + 24);
+      } else {
+        best = findBestWindow(hourly, startIndex, startIndex + 20);
+      }
       if (best) {
-        const isToday = hourly.time[best.i].slice(0, 10) === current.time.slice(0, 10);
+        const bestDate = hourly.time[best.i].slice(0, 10);
+        const isToday = bestDate === current.time.slice(0, 10);
+        const bestDayIdx = lastWeatherData.daily.time.indexOf(bestDate);
         const fromHr = best.from;
         const toHr = best.to;
         tips.push({
           icon: 'clock',
           level: best.avg < 40 ? 'warn' : '',
-          title: `Καλύτερο παράθυρο βόλτας: ${isToday ? '' : 'Αύριο '}${fromHr}–${toHr}`,
+          title: `Καλύτερο παράθυρο βόλτας: ${isToday ? '' : `${getDayTitle(bestDayIdx, bestDate)} `}${fromHr}–${toHr}`,
           sub: `Μέσος δείκτης ${Math.round(best.avg)}/100 • ~${Math.round(best.temp)}°C • ριπές έως ${Math.round(best.maxGust)} km/h`
         });
       }
@@ -3350,7 +3443,8 @@
         const dMm = hv(daily.precipitation_sum, d, 0);
         const dPop = hv(daily.precipitation_probability_max, d, 0);
         if (dMm >= 0.4 || dPop >= 50) {
-          rainyDayName = d === 0 ? 'σήμερα' : (d === 1 ? 'αύριο' : `την ${dayFmt.format(new Date(`${daily.time[d]}T12:00:00`))}`);
+          const realD = d + dayOffset;
+          rainyDayName = realD === 0 ? 'σήμερα' : (realD === 1 ? 'αύριο' : `την ${dayFmt.format(new Date(`${daily.time[d]}T12:00:00`))}`);
           break;
         }
       }
@@ -3396,6 +3490,7 @@
       if (!lastWeatherData) return;
       const { current, hourly, daily } = lastWeatherData;
       const startIndex = getNowIndex(current, hourly);
+      const planFocus = getPlanFocus(lastWeatherData);
       if (selectedFcDayIndex >= daily.time.length) selectedFcDayIndex = 0;
 
       els.fcDaysBar.innerHTML = '';
@@ -3424,7 +3519,7 @@
         if (!hourly.time[i].startsWith(dateIso)) continue;
         if (selectedFcDayIndex === 0 && i < startIndex) continue;
         const hr = parseInt(hourly.time[i].slice(11, 13), 10);
-        if (step === 3 && hr % 3 !== 0) continue;
+        if (step === 3 && hr % 3 !== 0 && !(planFocus.planned && i === planFocus.idx)) continue;
 
         const isDay = hv(hourly.is_day, i, 1);
         const info = getWeatherInfo(hv(hourly.weather_code, i, 0), isDay);
@@ -3444,7 +3539,7 @@
 
         const label = selectedFcDayIndex === 0 && i === startIndex ? 'Τώρα' : hourly.time[i].slice(11, 16);
         rows.push(`
-          <tr class="${isDay ? '' : 'night'}" title="${info.desc}${r.reasons.length ? ' • ' + r.reasons.map((x) => x.text).join(', ') : ''}">
+          <tr class="${isDay ? '' : 'night'} ${planFocus.planned && i === planFocus.idx ? 'planned' : ''}" title="${info.desc}${r.reasons.length ? ' • ' + r.reasons.map((x) => x.text).join(', ') : ''}">
             <td class="fc-time">${label}</td>
             <td class="fc-icon">${lucideSvg(info.icon)}</td>
             <td><span class="fc-temp">${Math.round(r.t)}°</span><span class="fc-sub">αισθ. ${Math.round(app)}°</span></td>
@@ -3476,8 +3571,6 @@
       const prevDest = els.routeDest.value !== '' && routeOptions[els.routeDest.value]
         ? routeOptions[els.routeDest.value].name
         : (localStorage.getItem(STORAGE_KEY_ROUTE_DEST) || '');
-      const prevDay = els.routeDay.value;
-      const prevHour = els.routeHour.value;
 
       const seen = new Set();
       routeOptions = [...ROUTE_PRESETS, ...savedCities].filter((c) => {
@@ -3492,20 +3585,6 @@
         .join('');
       const byName = routeOptions.findIndex((c) => c.name === prevDest);
       els.routeDest.value = byName !== -1 ? String(byName) : '';
-
-      const daily = lastWeatherData.daily;
-      els.routeDay.innerHTML = daily.time.map((d, i) => `<option value="${i}">${getDayTitle(i, d)}</option>`).join('');
-      els.routeDay.value = prevDay && Number(prevDay) < daily.time.length ? prevDay : '0';
-
-      let hourOpts = '';
-      for (let h = 5; h <= 22; h++) hourOpts += `<option value="${h}">${String(h).padStart(2, '0')}:00</option>`;
-      els.routeHour.innerHTML = hourOpts;
-      if (prevHour) {
-        els.routeHour.value = prevHour;
-      } else {
-        const nowHr = parseInt(lastWeatherData.current.time.slice(11, 13), 10) + 1;
-        els.routeHour.value = String(Math.min(Math.max(nowHr, 5), 22));
-      }
     }
 
     function hourKeyFrom(dateIso, offsetHours) {
@@ -3553,19 +3632,24 @@
     };
 
     // ===== Real route (OSRM) =====
+    const osrmCache = new Map();
     async function fetchOsrmRoute(a, b) {
+      const cacheKey = `${a.lat},${a.lon}>${b.lat},${b.lon}`;
+      if (osrmCache.has(cacheKey)) return osrmCache.get(cacheKey);
       const url = `https://router.project-osrm.org/route/v1/driving/${a.lon},${a.lat};${b.lon},${b.lat}?overview=full&geometries=geojson`;
       const res = await fetch(url);
       if (!res.ok) throw new Error('osrm');
       const data = await res.json();
       const r = data.routes && data.routes[0];
       if (!r) throw new Error('osrm');
-      return {
+      const route = {
         km: r.distance / 1000,
         hours: r.duration / 3600,
         coords: r.geometry.coordinates.map(([lon, lat]) => ({ lat, lon })),
         real: true
       };
+      osrmCache.set(cacheKey, route);
+      return route;
     }
 
     function straightRoute(a, b) {
@@ -3632,6 +3716,16 @@
     }
 
     async function runRouteCheck() {
+      if (!lastWeatherData) return;
+      const focus = getPlanFocus(lastWeatherData);
+      const dayIdx = focus.planned ? focus.dayIdx : 0;
+      const depHour = focus.planned
+        ? ridePlan.hour
+        : Math.min(parseInt(lastWeatherData.current.time.slice(11, 13), 10) + 1, 23);
+      const dateIso = lastWeatherData.daily.time[dayIdx];
+      document.getElementById('routeDepart').textContent = focus.planned
+        ? `Αναχώρηση: ${focus.label} (από τον Σχεδιασμό Βόλτας)`
+        : `Αναχώρηση: σήμερα ${String(depHour).padStart(2, '0')}:00 — άλλαξέ τη στον Σχεδιασμό Βόλτας`;
       const destIdx = els.routeDest.value;
       const pointsBox = document.getElementById('routePoints');
       const mapBox = document.getElementById('routeMap');
@@ -3646,9 +3740,6 @@
       const reqId = ++routeRequestId;
       els.routeResult.innerHTML = '<p class="route-empty">Υπολογισμός διαδρομής & καιρού...</p>';
 
-      const dayIdx = Number(els.routeDay.value || 0);
-      const depHour = Number(els.routeHour.value || 9);
-      const dateIso = lastWeatherData.daily.time[dayIdx];
 
       let route;
       try {
@@ -4016,14 +4107,155 @@
       els.pollenSub.textContent = `Γρασίδι: ${grass.toFixed(0)} • Ελιά: ${olive.toFixed(0)} κόκκοι/m³`;
     }
 
+    // ===== Ride planner (global day/hour focus) =====
+    const STORAGE_KEY_PLAN = 'motoweather_ride_plan';
+    let ridePlan = null; // { date: 'YYYY-MM-DD', hour: 10 }
+    let lastWeatherTimestamp = Date.now();
+    try {
+      ridePlan = JSON.parse(localStorage.getItem(STORAGE_KEY_PLAN) || 'null');
+    } catch {
+      ridePlan = null;
+    }
+
+    // Returns the hour the whole UI should describe: now, or the planned day/hour
+    function getPlanFocus(data) {
+      const { current, hourly, daily } = data;
+      const nowIdx = getNowIndex(current, hourly);
+      const nowFocus = { planned: false, idx: nowIdx, dayIdx: 0, current, daily, label: 'Τώρα' };
+      if (!ridePlan) return nowFocus;
+      const d = daily.time.indexOf(ridePlan.date);
+      const key = `${ridePlan.date}T${String(ridePlan.hour).padStart(2, '0')}`;
+      const idx = hourly.time.findIndex((t) => t.slice(0, 13) === key);
+      if (d === -1 || idx === -1 || idx < nowIdx) return nowFocus;
+
+      const pick = (k) => (hourly[k] ? hourly[k][idx] : undefined);
+      const view = {
+        time: hourly.time[idx],
+        temperature_2m: pick('temperature_2m'),
+        relative_humidity_2m: pick('relative_humidity_2m'),
+        apparent_temperature: pick('apparent_temperature'),
+        is_day: pick('is_day'),
+        precipitation: pick('precipitation'),
+        weather_code: pick('weather_code'),
+        wind_speed_10m: pick('wind_speed_10m'),
+        wind_direction_10m: pick('wind_direction_10m'),
+        wind_gusts_10m: pick('wind_gusts_10m'),
+        cloud_cover: pick('cloud_cover'),
+        pressure_msl: pick('pressure_msl')
+      };
+      const shifted = {};
+      Object.keys(daily).forEach((k) => {
+        shifted[k] = Array.isArray(daily[k]) ? daily[k].slice(d) : daily[k];
+      });
+      return {
+        planned: true,
+        idx,
+        dayIdx: d,
+        current: view,
+        daily: shifted,
+        label: `${getDayTitle(d, daily.time[d])} ${String(ridePlan.hour).padStart(2, '0')}:00`
+      };
+    }
+
+    function setRidePlan(plan) {
+      ridePlan = plan;
+      if (plan) localStorage.setItem(STORAGE_KEY_PLAN, JSON.stringify(plan));
+      else localStorage.removeItem(STORAGE_KEY_PLAN);
+      if (!lastWeatherData || !activeLocation) return;
+      const d = plan ? Math.max(lastWeatherData.daily.time.indexOf(plan.date), 0) : 0;
+      selectedRainDayIndex = d;
+      selectedFcDayIndex = d;
+      renderWeather(activeLocation, lastWeatherData, lastWeatherTimestamp);
+    }
+
+    function renderPlanBar(focus) {
+      const { current, hourly, daily } = lastWeatherData;
+      const nowIdx = getNowIndex(current, hourly);
+      const nowHour = parseInt(current.time.slice(11, 13), 10);
+      const planDay = focus.planned ? focus.dayIdx : -1;
+
+      const daysBar = document.getElementById('planDaysBar');
+      daysBar.innerHTML = '';
+      const nowBtn = document.createElement('button');
+      nowBtn.type = 'button';
+      nowBtn.role = 'tab';
+      nowBtn.className = `rain-day-tab ${focus.planned ? '' : 'active'}`;
+      nowBtn.setAttribute('aria-selected', focus.planned ? 'false' : 'true');
+      nowBtn.innerHTML = '<span>Τώρα</span><span class="rain-day-tab-sub">ζωντανά</span>';
+      nowBtn.addEventListener('click', () => setRidePlan(null));
+      daysBar.appendChild(nowBtn);
+
+      daily.time.forEach((dateIso, i) => {
+        const ds = dailyRideScore(hourly, dateIso, i === 0 ? nowIdx : 0);
+        if (i === 0 && ds == null && nowHour >= 21) return;
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.role = 'tab';
+        btn.className = `rain-day-tab ${i === planDay ? 'active' : ''}`;
+        btn.setAttribute('aria-selected', i === planDay ? 'true' : 'false');
+        btn.innerHTML = `
+          <span>${getDayTitle(i, dateIso)}</span>
+          <span class="rain-day-tab-sub">${ds != null ? `<span class="ride-dot ${rideLevel(ds).cls}"></span> ${ds}` : '—'}</span>
+        `;
+        btn.addEventListener('click', () => {
+          let hour = ridePlan ? ridePlan.hour : 10;
+          if (i === 0 && hour <= nowHour) hour = Math.min(nowHour + 1, 21);
+          setRidePlan({ date: dateIso, hour });
+        });
+        daysBar.appendChild(btn);
+      });
+
+      const hoursBar = document.getElementById('planHoursBar');
+      hoursBar.innerHTML = '';
+      hoursBar.classList.toggle('hidden', !focus.planned);
+      if (focus.planned) {
+        const dateIso = daily.time[focus.dayIdx];
+        for (let h = 6; h <= 21; h++) {
+          if (focus.dayIdx === 0 && h <= nowHour) continue;
+          const idx = hourly.time.findIndex((t) => t.slice(0, 13) === `${dateIso}T${String(h).padStart(2, '0')}`);
+          if (idx === -1) continue;
+          const sc = computeRideScore(hourly, idx).score;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.role = 'tab';
+          btn.className = `rain-day-tab ${h === ridePlan.hour ? 'active' : ''}`;
+          btn.setAttribute('aria-selected', h === ridePlan.hour ? 'true' : 'false');
+          btn.innerHTML = `
+            <span>${String(h).padStart(2, '0')}:00</span>
+            <span class="rain-day-tab-sub"><span class="ride-dot ${rideLevel(sc).cls}"></span> ${sc}</span>
+          `;
+          btn.addEventListener('click', () => setRidePlan({ date: dateIso, hour: h }));
+          hoursBar.appendChild(btn);
+        }
+        const active = hoursBar.querySelector('.active');
+        if (active) hoursBar.scrollLeft = Math.max(active.offsetLeft - hoursBar.clientWidth / 2, 0);
+      }
+
+      document.getElementById('planSummary').textContent = focus.planned
+        ? `Όλες οι οθόνες δείχνουν: ${focus.label}`
+        : 'Δες τον καιρό για όποια μέρα & ώρα θες';
+      document.getElementById('planBadge').classList.toggle('visible', focus.planned);
+      document.getElementById('planBadgeText').textContent = focus.planned ? `📅 Πρόβλεψη για ${focus.label}` : '';
+    }
+
     function renderWeather(loc, data, timestamp, modelsData = null, airData = null) {
       lastWeatherData = data;
+      lastWeatherTimestamp = timestamp;
       if (modelsData) lastModelsData = modelsData;
       if (airData) lastAirData = airData;
 
-      const current = data.current;
-      const daily = data.daily;
       const hourly = data.hourly;
+      const fullDaily = data.daily;
+      const realNowIdx = getNowIndex(data.current, hourly);
+      const focus = getPlanFocus(data);
+      if (!focus.planned && ridePlan) {
+        // Planned time has passed or left the forecast window
+        ridePlan = null;
+        localStorage.removeItem(STORAGE_KEY_PLAN);
+      }
+      const current = focus.current;
+      const daily = focus.daily;
+      renderPlanBar(focus);
 
       const info = getWeatherInfo(current.weather_code, current.is_day);
       document.body.setAttribute('data-sky', info.sky);
@@ -4047,8 +4279,8 @@
       els.uvVal.textContent = uvMax;
       els.uvSub.textContent = uvLevelText(parseFloat(uvMax));
 
-      // Find current hour index
-      const startIndex = getNowIndex(current, hourly);
+      // Hour index the UI describes (now or planned)
+      const startIndex = focus.idx;
 
       // Wind direction & Beaufort (meteo.gr style)
       if (current.wind_direction_10m != null) {
@@ -4079,13 +4311,13 @@
       const rideLvl = rideLevel(rideNow.score);
       els.ridePill.className = `ride-pill ${rideLvl.cls}`;
       els.ridePillScore.textContent = rideNow.score;
-      els.ridePillText.textContent = rideLvl.label;
+      els.ridePillText.textContent = focus.planned ? `${rideLvl.label} (${focus.label})` : rideLvl.label;
 
       // Hourly Forecast (next 24 hours starting from current hour)
       els.hourlyList.innerHTML = '';
       for (let i = startIndex; i < Math.min(startIndex + 24, hourly.time.length); i++) {
         const timeStr = hourly.time[i];
-        const hourLabel = i === startIndex ? 'Τώρα' : timeStr.slice(11, 16);
+        const hourLabel = i === startIndex && !focus.planned ? 'Τώρα' : timeStr.slice(11, 16);
         const hInfo = getWeatherInfo(hourly.weather_code[i], hourly.is_day ? hourly.is_day[i] : 1);
         const pop = hourly.precipitation_probability ? hourly.precipitation_probability[i] : 0;
 
@@ -4104,33 +4336,33 @@
 
       // 7-Day Forecast with Rain mm & hours (clicking any row selects that day in Rain Analysis!)
       els.dailyList.innerHTML = '';
-      const allMins = daily.temperature_2m_min;
-      const allMaxs = daily.temperature_2m_max;
+      const allMins = fullDaily.temperature_2m_min;
+      const allMaxs = fullDaily.temperature_2m_max;
       const weekMin = Math.min(...allMins);
       const weekMax = Math.max(...allMaxs);
       const weekRange = Math.max(weekMax - weekMin, 1);
 
       const dayFormatter = new Intl.DateTimeFormat('el-GR', { weekday: 'short' });
 
-      for (let i = 0; i < daily.time.length; i++) {
-        const dateObj = new Date(`${daily.time[i]}T12:00:00`);
+      for (let i = 0; i < fullDaily.time.length; i++) {
+        const dateObj = new Date(`${fullDaily.time[i]}T12:00:00`);
         const dayLabel = i === 0 ? 'Σήμερα' : (i === 1 ? 'Αύριο' : dayFormatter.format(dateObj));
-        const dInfo = getWeatherInfo(daily.weather_code[i], 1);
-        const dMin = Math.round(daily.temperature_2m_min[i]);
-        const dMax = Math.round(daily.temperature_2m_max[i]);
-        const dPop = daily.precipitation_probability_max ? daily.precipitation_probability_max[i] : 0;
-        const dMm = daily.precipitation_sum && daily.precipitation_sum[i] != null
-          ? Number(daily.precipitation_sum[i])
+        const dInfo = getWeatherInfo(fullDaily.weather_code[i], 1);
+        const dMin = Math.round(fullDaily.temperature_2m_min[i]);
+        const dMax = Math.round(fullDaily.temperature_2m_max[i]);
+        const dPop = fullDaily.precipitation_probability_max ? fullDaily.precipitation_probability_max[i] : 0;
+        const dMm = fullDaily.precipitation_sum && fullDaily.precipitation_sum[i] != null
+          ? Number(fullDaily.precipitation_sum[i])
           : 0;
-        const dHours = daily.precipitation_hours && daily.precipitation_hours[i] != null
-          ? Math.round(daily.precipitation_hours[i])
+        const dHours = fullDaily.precipitation_hours && fullDaily.precipitation_hours[i] != null
+          ? Math.round(fullDaily.precipitation_hours[i])
           : 0;
 
-        const leftPct = ((daily.temperature_2m_min[i] - weekMin) / weekRange) * 100;
-        const widthPct = Math.max(((daily.temperature_2m_max[i] - daily.temperature_2m_min[i]) / weekRange) * 100, 8);
+        const leftPct = ((fullDaily.temperature_2m_min[i] - weekMin) / weekRange) * 100;
+        const widthPct = Math.max(((fullDaily.temperature_2m_max[i] - fullDaily.temperature_2m_min[i]) / weekRange) * 100, 8);
 
-        const dRide = dailyRideScore(hourly, daily.time[i], i === 0 ? startIndex : 0);
-        const dGust = daily.wind_gusts_10m_max ? Math.round(hv(daily.wind_gusts_10m_max, i, 0)) : null;
+        const dRide = dailyRideScore(hourly, fullDaily.time[i], i === 0 ? realNowIdx : 0);
+        const dGust = fullDaily.wind_gusts_10m_max ? Math.round(hv(fullDaily.wind_gusts_10m_max, i, 0)) : null;
         const gustHtml = dGust != null ? `<span class="day-mm${dGust >= 45 ? ' fc-gust-high' : ''}">Ριπές ${dGust}</span>` : '';
         let rainMetaHtml = '<span class="day-mm" style="opacity:0.55;">0 mm</span>';
         if (dPop > 0 || dMm > 0) {
@@ -4163,7 +4395,7 @@
       }
 
       // Render Rider Advisor, forecast table, route & Atmosphere/Sun Astro cards
-      renderSmartAdvisor(current, hourly, daily, startIndex, lastAirData);
+      renderSmartAdvisor(current, hourly, daily, startIndex, lastAirData, focus);
       renderForecastTable();
       populateRouteControls();
       runRouteCheck();
@@ -4172,11 +4404,11 @@
       renderAirAndAstro(daily, lastAirData);
 
       // Render Dedicated Rain Analysis Card & Day Tabs
-      renderRainDaysBar(daily);
-      renderRainAnalysis(current, hourly, daily, startIndex, selectedRainDayIndex);
+      renderRainDaysBar(fullDaily);
+      renderRainAnalysis(data.current, hourly, fullDaily, realNowIdx, selectedRainDayIndex);
 
-      // Evaluate and trigger rain notification if enabled
-      evaluateRainNotification(loc, current, hourly, startIndex, false);
+      // Evaluate and trigger rain notification if enabled (always about real "now")
+      evaluateRainNotification(loc, data.current, hourly, realNowIdx, false);
 
       const timeFormatted = new Intl.DateTimeFormat('el-GR', {
         hour: '2-digit',
@@ -4368,6 +4600,7 @@
 
     els.routeDest.addEventListener('change', runRouteCheck);
 
+    document.getElementById('planResetBtn').addEventListener('click', () => setRidePlan(null));
     document.getElementById('radarPlay').addEventListener('click', toggleRadarAnimation);
     document.getElementById('radarSlider').addEventListener('input', (e) => {
       stopRadarAnimation();
@@ -4411,8 +4644,7 @@
       renderRideNotifySettings();
       evaluateRideNotification(true);
     });
-    els.routeDay.addEventListener('change', runRouteCheck);
-    els.routeHour.addEventListener('change', runRouteCheck);
+
 
     // Rain Notifications System (iOS 16.4+ PWA & Desktop/Android)
     const STORAGE_KEY_RAIN_NOTIFY = 'weatherbuddy_rain_notify_enabled';
